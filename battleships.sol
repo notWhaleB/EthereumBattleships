@@ -33,15 +33,16 @@ contract Field {
         return someField & shiftLeft(0x01, x) != 0;
     }
 
-    function shotCell(uint8 x) public {
+    function shotCell(uint8 x) public returns (bool) {
         require(x < 100 && !getCell(shots, x));
         shots = shots | shiftLeft(0x01, x);
 
         if (!getCell(field, x)) {
-            return;
+            return false;
         }
 
         cellsLeft -= 1;
+        return true;
     }
 }
 
@@ -152,7 +153,8 @@ contract Battleships {
 
         uint foeId = (playerId + 1) % 2;
 
-        players[foeId].field.shotCell(x);
-        turn++;
+        if (!players[foeId].field.shotCell(x)) {
+            turn++;
+        }
     }
 }
