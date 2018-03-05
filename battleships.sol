@@ -105,6 +105,16 @@ contract Battleships {
         _;
     }
 
+    function outcome() view public playerOnly returns (bool, bool) {
+        uint playerId = whois();
+        uint foeId = (whois() + 1) % 2;
+
+        return (
+            players[playerId].field.getLeftCount() == 0,
+            players[foeId].field.getLeftCount() == 0
+        );
+    }
+
     function turnPlayer() view private playerOnly returns (uint) {
         return turn % 2;
     }
@@ -137,15 +147,14 @@ contract Battleships {
         players[playerId].field.setField(field);
     }
 
-    function makeShot(uint8 x) public playerOnly gameAction returns (bool) {
+    function makeShot(uint8 x) public playerOnly gameAction {
         uint playerId = whois();
         require(playerId == turnPlayer());
 
         uint foeId = (playerId + 1) % 2;
 
-        bool res = players[foeId].field.shotCell(x);
-        turn++;
-
-        return res;
+        if (!players[foeId].field.shotCell(x)) {
+            turn++;
+        }
     }
 }
